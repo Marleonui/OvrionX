@@ -63,8 +63,8 @@ function startChild(name, cmd, args, cwd) {
 async function setup() {
   // Pterodactyls Daemon installiert im Root, loest aber die Workspaces im
   // Container oft nicht auf. Wir installieren + bauen daher pro Unterordner
-  // direkt (kein --workspace), das ist robust und umgeht den Fehler
-  // "No workspaces found".
+  // direkt (kein --workspace). Fehlende Ordner werden sauber uebersprungen,
+  // damit ein unvollstaendiger Upload nicht zum Crash fuehrt.
 
   const workspaces = [
     { dir: BACKEND_DIR, name: "backend", build: true },
@@ -72,6 +72,14 @@ async function setup() {
   ];
 
   for (const ws of workspaces) {
+    const pkgJson = path.join(ws.dir, "package.json");
+    if (!fs.existsSync(pkgJson)) {
+      console.warn(
+        `[orionx] WARN: ${ws.name}/package.json nicht gefunden - ueberspringe ${ws.name}`
+      );
+      continue;
+    }
+
     console.log(`[orionx] Installing ${ws.name} dependencies...`);
     try {
       await run(
@@ -96,7 +104,7 @@ async function setup() {
     }
   }
 
-  // 3) Build-Artefakte pruefen
+  // Build-Artefakte pruefen
   const backendMain = path.join(BACKEND_DIR, "dist", "main.js");
   const frontendNext = path.join(FRONTEND_DIR, ".next");
   if (!fs.existsSync(backendMain)) {
