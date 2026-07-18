@@ -1,0 +1,19 @@
+[Unit]
+Description=ORION X Backend (NestJS API)
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/orionx/backend
+ExecStart=/usr/bin/node /opt/orionx/backend/dist/main.js
+EnvironmentFile=/opt/orionx/.env
+Environment=NODE_ENV=production
+Environment=DATABASE_URL=postgresql://postgres:postgres@localhost:5432/orionx?schema=public
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target

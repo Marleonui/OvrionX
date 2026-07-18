@@ -1,0 +1,19 @@
+[Unit]
+Description=ORION X Frontend (Next.js)
+After=network.target orionx-backend.service
+Requires=orionx-backend.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/orionx/frontend
+ExecStart=/usr/bin/npm run start
+EnvironmentFile=/opt/orionx/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target
